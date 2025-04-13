@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CharacteristicType {
+  TEXT
+  NUMBER
+  SELECT
+}
+
+enum ReservationStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PICKED_UP
+}
+
+
+model User {
+  id            String         @id @default(cuid())
+  telegramId    String         @unique
+  firstName     String
+  lastName      String?
+  username      String?
+  phone         String?
+  favorites     Favorite[]
+  cartItems     CartItem[]
+  reservations  Reservation[]
+  createdAt     DateTime       @default(now())
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  parentId  String?
+  parent    Category?  @relation("Subcategories", fields: [parentId], references: [id])
+  children  Category[] @relation("Subcategories")
+  products  Product[]
+}
+
+model Product {
+  id                String                 @id @default(cuid())
+  name              String
+  description       String?
+  price             Float
+  discountPrice     Float?
+  category          Category?              @relation(fields: [categoryId], references: [id])
+  categoryId        String?
+  images            Image[]
+  variations        ProductVariation[]
+  characteristics   ProductCharacteristic[]
+  favorites         Favorite[]
+  cartItems         CartItem[]
+  reservations      Reservation[]
+  createdAt         DateTime               @default(now())
+}
+
+model ProductVariation {
+  id           String         @id @default(cuid())
+  product      Product        @relation(fields: [productId], references: [id])
+  productId    String
+  color        String
+  size         String
+  stock        Int
+  reservations Reservation[]
+  cartItems    CartItem[]
+}
+
+model ProductCharacteristic {
+  id                String           @id @default(cuid())
+  product           Product          @relation(fields: [productId], references: [id])
+  productId         String
+  characteristic    Characteristic  @relation(fields: [characteristicId], references: [id])
+  characteristicId  String
+  value             String
+}
+
+model Characteristic {
+  id                     String                @id @default(cuid())
+  name                   String
+  type                   CharacteristicType
+  productCharacteristics ProductCharacteristic[]
+}
+
+model Image {
+  id         String   @id @default(cuid())
+  url        String
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+}
+
+model CartItem {
+  id          String           @id @default(cuid())
+  user        User             @relation(fields: [userId], references: [id])
+  userId      String
+  product     Product          @relation(fields: [productId], references: [id])
+  productId   String
+  variation   ProductVariation @relation(fields: [variationId], references: [id])
+  variationId String
+  quantity    Int
+}
+
+model Reservation {
+  id           String             @id @default(cuid())
+  user         User               @relation(fields: [userId], references: [id])
+  userId       String
+  product      Product            @relation(fields: [productId], references: [id])
+  productId    String
+  variation    ProductVariation   @relation(fields: [variationId], references: [id])
+  variationId  String
+  store        Store              @relation(fields: [storeId], references: [id])
+  storeId      String
+  reservedAt   DateTime           @default(now())
+  expiresAt    DateTime
+  status       ReservationStatus  @default(ACTIVE)
+  isConfirmed  Boolean            @default(false)
+  confirmedAt  DateTime?
+}
+
+model Store {
+  id           String         @id @default(cuid())
+  name         String
+  address      String
+  reservations Reservation[]
+  createdAt    DateTime       @default(now())
+}
