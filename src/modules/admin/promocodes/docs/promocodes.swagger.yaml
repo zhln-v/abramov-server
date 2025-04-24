@@ -1,0 +1,156 @@
+tags:
+    - name: Admin - PromoCodes
+      description: Управление промокодами
+
+paths:
+    /admin/promocodes:
+        get:
+            summary: Получить список промокодов
+            tags: [Admin - PromoCodes]
+            responses:
+                '200':
+                    description: Список промокодов
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/PromoCode'
+
+        post:
+            summary: Создать промокод
+            tags: [Admin - PromoCodes]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreatePromoCodeDto'
+            responses:
+                '201':
+                    description: Промокод создан
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PromoCode'
+
+    /admin/promocodes/{id}:
+        get:
+            summary: Получить промокод по ID
+            tags: [Admin - PromoCodes]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PromoCode'
+                '404':
+                    description: Промокод не найден
+
+        patch:
+            summary: Обновить промокод
+            tags: [Admin - PromoCodes]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreatePromoCodeDto'
+            responses:
+                '200':
+                    description: Обновлён
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PromoCode'
+
+        delete:
+            summary: Удалить промокод
+            tags: [Admin - PromoCodes]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '204':
+                    description: Удалено
+
+components:
+    schemas:
+        PromoCode:
+            type: object
+            properties:
+                id:
+                    type: string
+                code:
+                    type: string
+                discountId:
+                    type: string
+                usageLimit:
+                    type: integer
+                usedCount:
+                    type: integer
+                active:
+                    type: boolean
+                startsAt:
+                    type: string
+                    format: date-time
+                endsAt:
+                    type: string
+                    format: date-time
+                createdAt:
+                    type: string
+                    format: date-time
+                discount:
+                    $ref: '#/components/schemas/Discount'
+
+        CreatePromoCodeDto:
+            type: object
+            required:
+                - code
+                - discountId
+            properties:
+                code:
+                    type: string
+                discountId:
+                    type: string
+                usageLimit:
+                    type: integer
+                active:
+                    type: boolean
+                startsAt:
+                    type: string
+                    format: date-time
+                endsAt:
+                    type: string
+                    format: date-time
+
+        Discount:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                type:
+                    type: string
+                    enum: [PERCENT, FIXED]
+                value:
+                    type: number
+                active:
+                    type: boolean

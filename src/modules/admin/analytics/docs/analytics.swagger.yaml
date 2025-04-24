@@ -1,0 +1,118 @@
+tags:
+    - name: Admin - Analytics
+      description: Аналитика по бронированиям, продажам и популярным товарам
+
+paths:
+    /admin/analytics/summary:
+        get:
+            summary: Общая статистика
+            tags: [Admin - Analytics]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AnalyticsSummary'
+
+    /admin/analytics/bookings:
+        get:
+            summary: Количество бронирований по дням
+            tags: [Admin - Analytics]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ChartPoint'
+
+    /admin/analytics/revenue:
+        get:
+            summary: Доход по дням
+            tags: [Admin - Analytics]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ChartPoint'
+
+    /admin/analytics/top-products:
+        get:
+            summary: Топ товаров по бронированиям
+            tags: [Admin - Analytics]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/TopItem'
+
+    /admin/analytics/top-categories:
+        get:
+            summary: Топ категорий по количеству товаров
+            tags: [Admin - Analytics]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/TopItem'
+
+components:
+    schemas:
+        AnalyticsSummary:
+            type: object
+            properties:
+                totalBookings:
+                    type: integer
+                confirmed:
+                    type: integer
+                canceled:
+                    type: integer
+                users:
+                    type: integer
+                totalRevenue:
+                    type: number
+
+        ChartPoint:
+            type: object
+            properties:
+                date:
+                    type: string
+                    format: date
+                count:
+                    type: integer
+                value:
+                    type: number
+
+        TopItem:
+            type: object
+            properties:
+                categoryId:
+                    type: string
+                productId:
+                    type: string
+                variantId:
+                    type: string
+                _count:
+                    type: object
+                    properties:
+                        categoryId:
+                            type: integer
+                        productId:
+                            type: integer
+                        variantId:
+                            type: integer

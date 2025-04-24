@@ -1,0 +1,177 @@
+tags:
+    - name: Admin - Bookings
+      description: Управление бронями клиентов
+
+paths:
+    /admin/bookings:
+        get:
+            summary: Получить список всех броней
+            tags: [Admin - Bookings]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Booking'
+
+    /admin/bookings/{id}:
+        get:
+            summary: Получить бронь по ID
+            tags: [Admin - Bookings]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Booking'
+                '404':
+                    description: Бронь не найдена
+
+    /admin/bookings/{id}/status:
+        patch:
+            summary: Обновить статус брони (подтвердить/отменить)
+            tags: [Admin - Bookings]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateBookingStatusDto'
+            responses:
+                '200':
+                    description: Статус обновлён
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Booking'
+
+components:
+    schemas:
+        UpdateBookingStatusDto:
+            type: object
+            required:
+                - status
+            properties:
+                status:
+                    type: string
+                    enum: [CONFIRMED, CANCELED]
+                comment:
+                    type: string
+
+        Booking:
+            type: object
+            properties:
+                id:
+                    type: string
+                user:
+                    $ref: '#/components/schemas/User'
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BookingItem'
+                status:
+                    type: string
+                    enum: [PENDING, CONFIRMED, CANCELED, EXPIRED]
+                comment:
+                    type: string
+                promoCode:
+                    $ref: '#/components/schemas/PromoCode'
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                statusHistory:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BookingStatusHistory'
+
+        BookingItem:
+            type: object
+            properties:
+                id:
+                    type: string
+                quantity:
+                    type: number
+                priceSnapshot:
+                    type: number
+                variant:
+                    $ref: '#/components/schemas/ProductVariant'
+
+        BookingStatusHistory:
+            type: object
+            properties:
+                id:
+                    type: string
+                status:
+                    type: string
+                comment:
+                    type: string
+                changedAt:
+                    type: string
+                    format: date-time
+
+        PromoCode:
+            type: object
+            properties:
+                id:
+                    type: string
+                code:
+                    type: string
+
+        User:
+            type: object
+            properties:
+                id:
+                    type: string
+                telegramId:
+                    type: string
+
+        ProductVariant:
+            type: object
+            properties:
+                id:
+                    type: string
+                sku:
+                    type: string
+                size:
+                    type: string
+                color:
+                    type: string
+                price:
+                    type: number
+                images:
+                    type: array
+                    items:
+                        type: string
+                product:
+                    $ref: '#/components/schemas/Product'
+
+        Product:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                basePrice:
+                    type: number

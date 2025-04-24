@@ -1,0 +1,164 @@
+tags:
+    - name: Admin - Discounts
+      description: Управление скидками
+
+paths:
+    /admin/discounts:
+        get:
+            summary: Получить список скидок
+            tags: [Admin - Discounts]
+            responses:
+                '200':
+                    description: Список скидок
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Discount'
+
+        post:
+            summary: Создать скидку
+            tags: [Admin - Discounts]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateDiscountDto'
+            responses:
+                '201':
+                    description: Скидка создана
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Discount'
+
+    /admin/discounts/{id}:
+        get:
+            summary: Получить скидку по ID
+            tags: [Admin - Discounts]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Discount'
+                '404':
+                    description: Скидка не найдена
+
+        patch:
+            summary: Обновить скидку
+            tags: [Admin - Discounts]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateDiscountDto'
+            responses:
+                '200':
+                    description: Обновлено
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Discount'
+
+        delete:
+            summary: Удалить скидку
+            tags: [Admin - Discounts]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '204':
+                    description: Удалено
+
+components:
+    schemas:
+        Discount:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                type:
+                    type: string
+                    enum: [PERCENT, FIXED]
+                value:
+                    type: number
+                active:
+                    type: boolean
+                startsAt:
+                    type: string
+                    format: date-time
+                endsAt:
+                    type: string
+                    format: date-time
+                createdAt:
+                    type: string
+                    format: date-time
+                products:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            productId:
+                                type: string
+                categories:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            categoryId:
+                                type: string
+
+        CreateDiscountDto:
+            type: object
+            required:
+                - name
+                - type
+                - value
+            properties:
+                name:
+                    type: string
+                type:
+                    type: string
+                    enum: [PERCENT, FIXED]
+                value:
+                    type: number
+                active:
+                    type: boolean
+                startsAt:
+                    type: string
+                    format: date-time
+                endsAt:
+                    type: string
+                    format: date-time
+                productIds:
+                    type: array
+                    items:
+                        type: string
+                    description: Список ID товаров, к которым применяется скидка
+                categoryIds:
+                    type: array
+                    items:
+                        type: string
+                    description: Список ID категорий, к которым применяется скидка
