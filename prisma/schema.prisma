@@ -42,11 +42,26 @@ model User {
 
 // ========== CATEGORY ==========
 model Category {
-  id            String     @id @default(cuid())
-  name          String
-  products      Product[]
-  discounts     DiscountCategory[]
+  id        String     @id @default(cuid())
+  name      String
+  parentId  String?
+  parent    Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryHierarchy")
+
+  discounts DiscountCategory[]
+  products  ProductCategory[]
 }
+
+model ProductCategory {
+  productId  String
+  categoryId String
+
+  product    Product  @relation(fields: [productId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@id([productId, categoryId])
+}
+
 
 // ========== PRODUCT ==========
 model Product {
@@ -55,14 +70,13 @@ model Product {
   description   String
   basePrice     Float
   createdAt     DateTime   @default(now())
-  categoryId    String
 
-  category      Category   @relation(fields: [categoryId], references: [id])
   variants      ProductVariant[]
   ratings       Rating[]
   favorites     Favorite[]
   discounts     DiscountProduct[]
   views         ProductView[]
+  categories    ProductCategory[]
 }
 
 // ========== VARIANTS ==========

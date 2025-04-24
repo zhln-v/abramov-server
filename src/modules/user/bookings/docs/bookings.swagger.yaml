@@ -1,0 +1,95 @@
+tags:
+    - name: User - Bookings
+      description: Управление бронированиями товаров пользователем
+
+paths:
+    /user/bookings:
+        get:
+            summary: Получить список своих броней
+            tags: [User - Bookings]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Booking'
+
+        post:
+            summary: Создать новую бронь
+            tags: [User - Bookings]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateBookingDto'
+            responses:
+                '201':
+                    description: Бронь создана
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Booking'
+
+    /user/bookings/{id}:
+        get:
+            summary: Получить бронь по ID
+            tags: [User - Bookings]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Бронь
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Booking'
+
+components:
+    schemas:
+        CreateBookingDto:
+            type: object
+            required:
+                - items
+            properties:
+                items:
+                    type: array
+                    items:
+                        type: object
+                        required: [variantId, quantity]
+                        properties:
+                            variantId:
+                                type: string
+                            quantity:
+                                type: integer
+                promoCode:
+                    type: string
+                comment:
+                    type: string
+
+        Booking:
+            type: object
+            properties:
+                id:
+                    type: string
+                status:
+                    type: string
+                comment:
+                    type: string
+                createdAt:
+                    type: string
+                promoCode:
+                    type: object
+                items:
+                    type: array
+                    items:
+                        type: object
+                statusHistory:
+                    type: array

@@ -1,0 +1,45 @@
+tags:
+    - name: User - Favorites
+      description: Управление избранными товарами
+
+paths:
+    /user/favorites:
+        get:
+            summary: Получить список избранных товаров
+            tags: [User - Favorites]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Product'
+
+    /user/favorites/{productId}:
+        post:
+            summary: Добавить товар в избранное
+            tags: [User - Favorites]
+            parameters:
+                - in: path
+                  name: productId
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '201':
+                    description: Добавлено
+
+        delete:
+            summary: Удалить товар из избранного
+            tags: [User - Favorites]
+            parameters:
+                - in: path
+                  name: productId
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '204':
+                    description: Удалено
