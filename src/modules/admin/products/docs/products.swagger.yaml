@@ -1,0 +1,247 @@
+tags:
+    - name: Admin - Products
+      description: Управление товарами и их вариациями
+
+paths:
+    /admin/products:
+        get:
+            summary: Получить список товаров
+            tags: [Admin - Products]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Product'
+
+        post:
+            summary: Создать товар с вариациями
+            tags: [Admin - Products]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateProductDto'
+            responses:
+                '201':
+                    description: Товар создан
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+
+    /admin/products/{id}:
+        get:
+            summary: Получить товар по ID
+            tags: [Admin - Products]
+            parameters:
+                - in: path
+                  name: id
+                  schema:
+                      type: string
+                  required: true
+                  description: ID товара
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+                '404':
+                    description: Товар не найден
+
+        patch:
+            summary: Обновить товар и его вариации
+            tags: [Admin - Products]
+            parameters:
+                - in: path
+                  name: id
+                  schema:
+                      type: string
+                  required: true
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateProductDto'
+            responses:
+                '200':
+                    description: Успешно обновлено
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+
+        delete:
+            summary: Удалить товар
+            tags: [Admin - Products]
+            parameters:
+                - in: path
+                  name: id
+                  schema:
+                      type: string
+                  required: true
+            responses:
+                '204':
+                    description: Удалено
+
+components:
+    schemas:
+        Product:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                basePrice:
+                    type: number
+                createdAt:
+                    type: string
+                    format: date-time
+                variants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ProductVariant'
+                discounts:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            discount:
+                                $ref: '#/components/schemas/Discount'
+                categories:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            category:
+                                $ref: '#/components/schemas/Category'
+
+        ProductVariant:
+            type: object
+            properties:
+                id:
+                    type: string
+                sku:
+                    type: string
+                size:
+                    type: string
+                color:
+                    type: string
+                price:
+                    type: number
+                quantity:
+                    type: number
+                images:
+                    type: array
+                    items:
+                        type: string
+                createdAt:
+                    type: string
+                    format: date-time
+
+        CreateProductDto:
+            type: object
+            required:
+                - name
+                - description
+                - basePrice
+                - variants
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                basePrice:
+                    type: number
+                variants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CreateVariantDto'
+                discountIds:
+                    type: array
+                    items:
+                        type: string
+                    description: ID скидок, применяемых к товару
+                categoryIds:
+                    type: array
+                    items:
+                        type: string
+                    description: ID категорий, к которым принадлежит товар
+
+        UpdateProductDto:
+            type: object
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                basePrice:
+                    type: number
+                variants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CreateVariantDto'
+                discountIds:
+                    type: array
+                    items:
+                        type: string
+                categoryIds:
+                    type: array
+                    items:
+                        type: string
+
+        CreateVariantDto:
+            type: object
+            required:
+                - sku
+                - price
+                - quantity
+                - images
+            properties:
+                sku:
+                    type: string
+                size:
+                    type: string
+                color:
+                    type: string
+                price:
+                    type: number
+                quantity:
+                    type: number
+                images:
+                    type: array
+                    items:
+                        type: string
+
+        Category:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+
+        Discount:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                type:
+                    type: string
+                    enum: [PERCENT, FIXED]
+                value:
+                    type: number
+                active:
+                    type: boolean
