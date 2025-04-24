@@ -1,42 +1,36 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import os from "os";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
+import { getLocalIp } from "./core/utils/getLocalIp.util";
+import { router } from "./features/routes";
+import { errorHandler } from "./core/middlewares/errorHandler";
 
 dotenv.config();
+
+const PORT = process.env.PORT || 3000;
+const accessLogStream = fs.createWriteStream(path.join("logs", "access.log"), {
+    flags: "a",
+});
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
-
-const accessLogStream = fs.createWriteStream(path.join("logs", "access.log"), {
-    flags: "a",
-});
-
+// Логгирование
 app.use(morgan("dev"));
 app.use(morgan("combined", { stream: accessLogStream }));
 
-const getLocalIp = (): string | null => {
-    const ifaces = os.networkInterfaces();
-    for (const iface of Object.values(ifaces)) {
-        if (!iface) continue;
-        for (const alias of iface) {
-            if (alias.family === "IPv4" && !alias.internal) {
-                return alias.address;
-            }
-        }
-    }
-    return null;
-};
+app.use(errorHandler);
+app.use(router);
 
+// Инфа о запущенном сервере
 app.listen(PORT, () => {
     const localIp = getLocalIp();
+
     console.log("\n🚀 Сервер запущен:\n");
     console.log(`Local:     http://localhost:${PORT}`);
     if (localIp) {
