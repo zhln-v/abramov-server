@@ -1,25 +1,7 @@
 import { prisma } from '../../../../core/db';
 import { CreateProductDto, UpdateProductDto } from '../dto/products.schema';
 import { NotFoundError } from '../../../../core/errors/AppError';
-
-function calculateFinalPrice(
-    basePrice: number,
-    discounts: { discount: { type: string; value: number; active: boolean } }[],
-): number {
-    let price = basePrice;
-
-    for (const { discount } of discounts) {
-        if (!discount.active) continue;
-
-        if (discount.type === 'PERCENT') {
-            price -= (price * discount.value) / 100;
-        } else if (discount.type === 'FIXED') {
-            price -= discount.value;
-        }
-    }
-
-    return Math.max(price, 0);
-}
+import { calculateFinalPrice } from '../../../../core/utils/pricing.util';
 
 export class ProductService {
     static async getAll() {

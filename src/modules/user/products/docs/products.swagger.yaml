@@ -1,0 +1,55 @@
+tags:
+    - name: User - Products
+      description: Получение товаров для пользователя
+
+paths:
+    /user/products:
+        get:
+            summary: Получить список товаров (с фильтрацией)
+            tags: [User - Products]
+            parameters:
+                - in: query
+                  name: search
+                  schema:
+                      type: string
+                - in: query
+                  name: category
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Список товаров
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ProductWithFinalPrice'
+
+    /user/products/{id}:
+        get:
+            summary: Получить товар по ID
+            tags: [User - Products]
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Товар
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ProductWithFinalPrice'
+
+components:
+    schemas:
+        ProductWithFinalPrice:
+            allOf:
+                - $ref: '#/components/schemas/Product'
+                - type: object
+                  properties:
+                      finalPrice:
+                          type: number

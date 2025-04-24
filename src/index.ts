@@ -8,6 +8,7 @@ import { errorHandler } from './core/middlewares/errorHandler';
 import path from 'path';
 import { swaggerSpec } from './docs/swagger';
 import { router } from './routes';
+import { mockUser } from './core/middlewares/mockUser.middleware';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
+app.use(mockUser);
 app.use(cors());
 app.use(express.json());
 

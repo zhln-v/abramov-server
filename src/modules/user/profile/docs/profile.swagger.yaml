@@ -1,0 +1,37 @@
+tags:
+    - name: User - Profile
+      description: Профиль пользователя и его статистика
+
+paths:
+    /user/me:
+        get:
+            summary: Получить информацию о себе и статистику
+            tags: [User - Profile]
+            responses:
+                '200':
+                    description: Данные пользователя
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: string
+                                    telegramId:
+                                        type: string
+                                    role:
+                                        type: string
+                                    createdAt:
+                                        type: string
+                                        format: date-time
+                                    stats:
+                                        type: object
+                                        properties:
+                                            bookings:
+                                                type: integer
+                                            favorites:
+                                                type: integer
+                                            ratings:
+                                                type: integer
+                                            views:
+                                                type: integer
