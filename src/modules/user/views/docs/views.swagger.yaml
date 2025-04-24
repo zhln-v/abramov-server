@@ -1,0 +1,32 @@
+tags:
+    - name: User - Views
+      description: Просмотры товаров пользователем
+
+paths:
+    /user/views:
+        get:
+            summary: Получить список просмотренных товаров
+            tags: [User - Views]
+            responses:
+                '200':
+                    description: Успешно
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Product'
+
+    /user/views/{productId}:
+        post:
+            summary: Записать просмотр товара
+            tags: [User - Views]
+            parameters:
+                - in: path
+                  name: productId
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '204':
+                    description: Просмотр записан
