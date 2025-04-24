@@ -8,133 +8,216 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum CharacteristicType {
-  TEXT
-  NUMBER
-  SELECT
+// ========== ENUMS ==========
+enum Role {
+  USER
+  ADMIN
 }
 
-enum ReservationStatus {
-  ACTIVE
-  CANCELLED
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
   EXPIRED
-  PICKED_UP
 }
 
+enum DiscountType {
+  PERCENT
+  FIXED
+}
 
+// ========== USER ==========
 model User {
-  id            String         @id @default(cuid())
-  telegramId    String         @unique
-  firstName     String
-  lastName      String?
-  username      String?
-  phone         String?
-  favorites     Favorite[]
-  cartItems     CartItem[]
-  reservations  Reservation[]
-  createdAt     DateTime       @default(now())
+  id               String   @id @default(cuid())
+  telegramId       String   @unique
+  role             Role     @default(USER)
+  createdAt        DateTime @default(now())
+
+  bookings         Booking[]
+  favorites        Favorite[]
+  ratings          Rating[]
+  promoRedemptions PromoCodeRedemption[]
+  productViews     ProductView[]
 }
 
+// ========== CATEGORY ==========
 model Category {
-  id        String     @id @default(cuid())
-  name      String
-  parentId  String?
-  parent    Category?  @relation("Subcategories", fields: [parentId], references: [id])
-  children  Category[] @relation("Subcategories")
-  products  Product[]
+  id            String     @id @default(cuid())
+  name          String
+  products      Product[]
+  discounts     DiscountCategory[]
 }
 
+// ========== PRODUCT ==========
 model Product {
-  id                String                 @id @default(cuid())
-  name              String
-  description       String?
-  price             Float
-  discountPrice     Float?
-  category          Category?              @relation(fields: [categoryId], references: [id])
-  categoryId        String?
-  images            Image[]
-  variations        ProductVariation[]
-  characteristics   ProductCharacteristic[]
-  favorites         Favorite[]
-  cartItems         CartItem[]
-  reservations      Reservation[]
-  createdAt         DateTime               @default(now())
+  id            String     @id @default(cuid())
+  name          String
+  description   String
+  basePrice     Float
+  createdAt     DateTime   @default(now())
+  categoryId    String
+
+  category      Category   @relation(fields: [categoryId], references: [id])
+  variants      ProductVariant[]
+  ratings       Rating[]
+  favorites     Favorite[]
+  discounts     DiscountProduct[]
+  views         ProductView[]
 }
 
-model ProductVariation {
-  id           String         @id @default(cuid())
-  product      Product        @relation(fields: [productId], references: [id])
+// ========== VARIANTS ==========
+model ProductVariant {
+  id           String   @id @default(cuid())
   productId    String
-  color        String
-  size         String
-  stock        Int
-  reservations Reservation[]
-  cartItems    CartItem[]
+  sku          String   @unique
+  size         String?
+  color        String?
+  price        Float
+  quantity     Int
+  images       String[]
+  createdAt    DateTime @default(now())
+
+  product      Product  @relation(fields: [productId], references: [id])
+  bookingItems BookingItem[]
 }
 
-model ProductCharacteristic {
-  id                String           @id @default(cuid())
-  product           Product          @relation(fields: [productId], references: [id])
-  productId         String
-  characteristic    Characteristic  @relation(fields: [characteristicId], references: [id])
-  characteristicId  String
-  value             String
+// ========== BOOKING ==========
+model Booking {
+  id             String         @id @default(cuid())
+  userId         String
+  status         BookingStatus  @default(PENDING)
+  comment        String?
+  promoCodeId    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  promoCodeRedemptions PromoCodeRedemption[]
+  user           User           @relation(fields: [userId], references: [id])
+  promoCode      PromoCode?     @relation(fields: [promoCodeId], references: [id])
+  items          BookingItem[]
+  statusHistory  BookingStatusHistory[]
 }
 
-model Characteristic {
-  id                     String                @id @default(cuid())
-  name                   String
-  type                   CharacteristicType
-  productCharacteristics ProductCharacteristic[]
+model BookingItem {
+  id             String          @id @default(cuid())
+  bookingId      String
+  variantId      String
+  quantity       Int             @default(1)
+  priceSnapshot  Float
+
+  booking        Booking         @relation(fields: [bookingId], references: [id])
+  variant        ProductVariant  @relation(fields: [variantId], references: [id])
 }
 
-model Image {
-  id         String   @id @default(cuid())
-  url        String
-  product    Product  @relation(fields: [productId], references: [id])
-  productId  String
+model BookingStatusHistory {
+  id         String         @id @default(cuid())
+  bookingId  String
+  status     BookingStatus
+  comment    String?
+  changedAt  DateTime       @default(now())
+
+  booking    Booking        @relation(fields: [bookingId], references: [id])
+}
+
+// ========== SOCIAL ==========
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  value     Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
 }
 
 model Favorite {
-  id         String   @id @default(cuid())
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String
-  product    Product  @relation(fields: [productId], references: [id])
-  productId  String
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
 }
 
-model CartItem {
-  id          String           @id @default(cuid())
-  user        User             @relation(fields: [userId], references: [id])
-  userId      String
-  product     Product          @relation(fields: [productId], references: [id])
+model ProductView {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String?
+  viewedAt  DateTime @default(now())
+
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+// ========== DISCOUNTS ==========
+model Discount {
+  id          String     @id @default(cuid())
+  name        String
+  type        DiscountType
+  value       Float
+  active      Boolean    @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime   @default(now())
+
+  products    DiscountProduct[]
+  categories  DiscountCategory[]
+  promoCodes  PromoCode[]
+}
+
+model DiscountProduct {
+  discountId  String
   productId   String
-  variation   ProductVariation @relation(fields: [variationId], references: [id])
-  variationId String
-  quantity    Int
+
+  discount    Discount @relation(fields: [discountId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@id([discountId, productId])
 }
 
-model Reservation {
-  id           String             @id @default(cuid())
-  user         User               @relation(fields: [userId], references: [id])
+model DiscountCategory {
+  discountId  String
+  categoryId  String
+
+  discount    Discount @relation(fields: [discountId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  @@id([discountId, categoryId])
+}
+
+// ========== PROMOCODES ==========
+model PromoCode {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  discountId   String
+  usageLimit   Int?
+  usedCount    Int       @default(0)
+  active       Boolean   @default(true)
+  startsAt     DateTime?
+  endsAt       DateTime?
+  createdAt    DateTime  @default(now())
+
+  discount     Discount  @relation(fields: [discountId], references: [id])
+  redemptions  PromoCodeRedemption[]
+  bookings     Booking[]
+}
+
+model PromoCodeRedemption {
+  id           String    @id @default(cuid())
+  promoCodeId  String
   userId       String
-  product      Product            @relation(fields: [productId], references: [id])
-  productId    String
-  variation    ProductVariation   @relation(fields: [variationId], references: [id])
-  variationId  String
-  store        Store              @relation(fields: [storeId], references: [id])
-  storeId      String
-  reservedAt   DateTime           @default(now())
-  expiresAt    DateTime
-  status       ReservationStatus  @default(ACTIVE)
-  isConfirmed  Boolean            @default(false)
-  confirmedAt  DateTime?
-}
+  bookingId    String?
+  redeemedAt   DateTime  @default(now())
 
-model Store {
-  id           String         @id @default(cuid())
-  name         String
-  address      String
-  reservations Reservation[]
-  createdAt    DateTime       @default(now())
+  promoCode    PromoCode @relation(fields: [promoCodeId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
+  booking      Booking?  @relation(fields: [bookingId], references: [id])
+
+  @@unique([promoCodeId, userId])
 }
