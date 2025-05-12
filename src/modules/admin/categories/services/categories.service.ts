@@ -52,19 +52,81 @@ export class CategoryService {
     }
 
     /**
-     * Удалить категорию
-     * Если есть подкатегории — запрещаем
+     * Удалить категорию и все связанные данные
+     * - Рекурсивное удаление всех подкатегорий
+     * - Удаление всех товаров, которые относятся к этой категории
+     * - Удаление связей в ProductCategory, DiscountCategory
      */
     static async delete(id: string) {
-        const children = await prisma.category.findMany({
-            where: { parentId: id },
-        });
-        if (children.length > 0) {
-            throw new Error('Нельзя удалить категорию, у которой есть подкатегории');
-        }
+        // 🔍 Проверяем, существует ли категория
+        await this.getById(id);
 
-        await this.getById(id); // Проверка
-        return prisma.category.delete({ where: { id } });
+        // 🔄 Транзакция на удаление всех зависимых данных
+        await prisma.$transaction(async (tx) => {
+            // 1️⃣ Найти все дочерние категории
+            const children = await tx.category.findMany({
+                where: { parentId: id },
+            });
+
+            // 🔄 Рекурсивно удалить подкатегории
+            for (const child of children) {
+                await this.delete(child.id);
+            }
+
+            // 2️⃣ Удаляем связи с продуктами
+            await tx.productCategory.deleteMany({
+                where: { categoryId: id },
+            });
+
+            // 3️⃣ Удаляем скидки на категорию
+            await tx.discountCategory.deleteMany({
+                where: { categoryId: id },
+            });
+
+            // 4️⃣ Удаляем все товары, которые принадлежат категории
+            const products = await tx.product.findMany({
+                where: {
+                    categories: {
+                        some: { categoryId: id },
+                    },
+                },
+            });
+
+            const productIds = products.map((p) => p.id);
+
+            if (productIds.length > 0) {
+                // 🛑 Удаляем связанные данные
+                await tx.productVariant.deleteMany({
+                    where: { productId: { in: productIds } },
+                });
+
+                await tx.rating.deleteMany({
+                    where: { productId: { in: productIds } },
+                });
+
+                await tx.favorite.deleteMany({
+                    where: { productId: { in: productIds } },
+                });
+
+                await tx.productView.deleteMany({
+                    where: { productId: { in: productIds } },
+                });
+
+                await tx.discountProduct.deleteMany({
+                    where: { productId: { in: productIds } },
+                });
+
+                // 🗑️ Удаляем продукты
+                await tx.product.deleteMany({
+                    where: { id: { in: productIds } },
+                });
+            }
+
+            // 5️⃣ Удаляем саму категорию
+            await tx.category.delete({
+                where: { id },
+            });
+        });
     }
 
     /**

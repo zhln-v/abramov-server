@@ -5,6 +5,7 @@ import { wrap } from '../../../../core/utils/wrap';
 const adminBookingsRouter = Router();
 
 adminBookingsRouter.get('/admin/bookings', wrap(BookingController.getAll));
+adminBookingsRouter.get('/admin/bookings/status/:status', wrap(BookingController.getByStatus));
 adminBookingsRouter.get('/admin/bookings/:id', wrap(BookingController.getById));
 adminBookingsRouter.patch('/admin/bookings/:id/status', wrap(BookingController.updateStatus));
 

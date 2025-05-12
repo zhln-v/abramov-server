@@ -11,6 +11,8 @@ import userFavoritesRouter from '../modules/user/favorites/routes/favorites.rout
 import userRatingRouter from '../modules/user/ratings/routes/ratings.routes';
 import userViewsRouter from '../modules/user/views/routes/views.routes';
 import userRouter from '../modules/user/profile/routes/profile.routes';
+import authRouter from '../modules/user/auth/routes/auth.routes';
+import uploadsRouter from '../modules/admin/uploads/routes/uploads.routes';
 
 export const router = Router();
 
@@ -33,3 +35,5 @@ router.use('/', userFavoritesRouter);
 router.use('/', userRatingRouter);
 router.use('/', userViewsRouter);
 router.use('/', userRouter);
+router.use('/', authRouter);
+router.use('/', uploadsRouter);

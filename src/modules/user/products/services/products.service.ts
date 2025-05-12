@@ -22,7 +22,8 @@ export class UserProductService {
         }));
     }
 
-    static async getById(id: string) {
+    static async getById(id: string, userId: string) {
+        // Ищем товар по ID
         const product = await prisma.product.findUnique({
             where: { id },
             include: {
@@ -34,8 +35,17 @@ export class UserProductService {
 
         if (!product) throw new Error('Товар не найден');
 
+        // Проверяем, добавлен ли товар в избранное у данного пользователя
+        const isFavorite = await prisma.favorite.findFirst({
+            where: {
+                userId,
+                productId: id,
+            },
+        });
+
         return {
             ...product,
+            isFavorite: Boolean(isFavorite),
             finalPrice: calculateFinalPrice(product.basePrice, product.discounts),
         };
     }

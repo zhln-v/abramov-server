@@ -13,7 +13,7 @@ export const createProductSchema = z.object({
     name: z.string().min(1),
     description: z.string().min(1),
     basePrice: z.number().nonnegative(),
-    categoryId: z.string().cuid(),
+    categoryIds: z.array(z.string().cuid()), // <- изменил на массив
     discountIds: z.array(z.string().uuid()).optional(),
     variants: z.array(productVariantSchema),
 });
@@ -22,7 +22,7 @@ export const updateProductSchema = z.object({
     name: z.string().optional(),
     description: z.string().optional(),
     basePrice: z.number().optional(),
-    categoryId: z.string().cuid().optional(),
+    categoryIds: z.array(z.string().cuid()).optional(), // <- тоже массив
     discountIds: z.array(z.string().uuid()).optional(),
     variants: z
         .array(

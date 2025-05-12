@@ -5,8 +5,8 @@ declare global {
         interface Request {
             user?: {
                 id: string;
-                telegramId: string;
-                role: Role;
+                telegramId?: string;
+                role?: Role;
             };
         }
     }

@@ -34,4 +34,20 @@ export class UserBookingController {
         const booking = await UserBookingService.getById(req.user.id, req.params.id);
         res.json(booking);
     }
+
+    static async delete(req: Request, res: Response) {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const bookingId = req.params.id;
+
+        try {
+            await UserBookingService.delete(req.user.id, bookingId);
+            res.status(204).send();
+        } catch (error: any) {
+            console.error('Ошибка при удалении бронирования:', error.message);
+            res.status(500).json({ message: 'Не удалось удалить бронирование.' });
+        }
+    }
 }

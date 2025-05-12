@@ -10,6 +10,9 @@ export class ProductsController extends BaseController<typeof ProductService> {
 
     async create(req: Request, res: Response) {
         const parsed = createProductSchema.safeParse(req.body);
+        // console.log(req.body);
+        console.log(parsed.error);
+
         if (!parsed.success) {
             return res.status(400).json(parsed.error);
         }

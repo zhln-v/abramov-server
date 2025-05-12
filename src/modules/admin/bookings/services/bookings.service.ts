@@ -42,6 +42,25 @@ export class BookingService {
         return booking;
     }
 
+    static async getByStatus(status: BookingStatus) {
+        return prisma.booking.findMany({
+            where: { status },
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: true,
+                items: {
+                    include: {
+                        variant: {
+                            include: { product: true },
+                        },
+                    },
+                },
+                statusHistory: true,
+                promoCode: true,
+            },
+        });
+    }
+
     static async updateStatus(id: string, status: BookingStatus, comment?: string) {
         const booking = await this.getById(id);
 

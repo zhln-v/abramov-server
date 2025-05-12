@@ -39,41 +39,51 @@ export class ProductService {
     }
 
     static async create(data: CreateProductDto) {
-        const { variants, discountIds, categoryIds, ...productData } = data as any;
+        const { variants, discountIds, categoryIds, ...productData } = data;
 
-        return prisma.product.create({
+        console.log(data);
+
+        // Создание продукта
+        const product = await prisma.product.create({
             data: {
                 ...productData,
                 variants: {
                     create: variants,
                 },
-                discounts: discountIds
-                    ? {
-                          create: discountIds.map((discountId: string) => ({
-                              discountId,
-                          })),
-                      }
-                    : undefined,
-                categories: categoryIds
-                    ? {
-                          create: categoryIds.map((categoryId: string) => ({
-                              categoryId,
-                          })),
-                      }
-                    : undefined,
             },
             include: {
                 variants: true,
-                discounts: { include: { discount: true } },
-                categories: { include: { category: true } },
             },
         });
+
+        // Привязка категорий
+        if (categoryIds?.length) {
+            await prisma.productCategory.createMany({
+                data: categoryIds.map((categoryId: string) => ({
+                    productId: product.id,
+                    categoryId: categoryId,
+                })),
+            });
+        }
+
+        // Привязка скидок
+        if (discountIds?.length) {
+            await prisma.discountProduct.createMany({
+                data: discountIds.map((discountId: string) => ({
+                    productId: product.id,
+                    discountId: discountId,
+                })),
+            });
+        }
+
+        // Возвращаем продукт с категориями и скидками
+        return this.getById(product.id);
     }
 
     static async update(id: string, data: UpdateProductDto) {
         await this.getById(id);
 
-        const { variants, discountIds, categoryIds, ...productData } = data as any;
+        const { variants, discountIds, categoryIds, ...productData } = data;
 
         await prisma.product.update({
             where: { id },
@@ -96,30 +106,22 @@ export class ProductService {
         if (discountIds) {
             await prisma.discountProduct.deleteMany({ where: { productId: id } });
 
-            await prisma.product.update({
-                where: { id },
-                data: {
-                    discounts: {
-                        create: discountIds.map((discountId: string) => ({
-                            discountId,
-                        })),
-                    },
-                },
+            await prisma.discountProduct.createMany({
+                data: discountIds.map((discountId: string) => ({
+                    productId: id,
+                    discountId: discountId,
+                })),
             });
         }
 
         if (categoryIds) {
             await prisma.productCategory.deleteMany({ where: { productId: id } });
 
-            await prisma.product.update({
-                where: { id },
-                data: {
-                    categories: {
-                        create: categoryIds.map((categoryId: string) => ({
-                            categoryId,
-                        })),
-                    },
-                },
+            await prisma.productCategory.createMany({
+                data: categoryIds.map((categoryId: string) => ({
+                    productId: id,
+                    categoryId: categoryId,
+                })),
             });
         }
 

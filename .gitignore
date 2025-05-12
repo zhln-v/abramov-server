@@ -1,11 +1,8 @@
 node_modules
+prisma/
 
-# Переменные окружения
+dist
+
 .env
-.env.local
 
-# Автогенерация
-prisma/migrations
-
-# Логи
-logs
+.vscode
