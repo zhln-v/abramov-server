@@ -12,7 +12,7 @@ services:
             - pgdata:/var/lib/postgresql/data
 
     backend:
-        image: zhlnv/abramov-container
+        image: zhlnv/abramov-repo
         env_file:
             - .env.local
         depends_on:
