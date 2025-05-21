@@ -12,24 +12,18 @@ services:
             - pgdata:/var/lib/postgresql/data
 
     backend:
-        build:
-            context: .
-            dockerfile: Dockerfile.dev
-
+        image: abramov-container # Твій готовий образ
         env_file:
             - .env.local
-
         depends_on:
             - db
         ports:
-            - 3000:3000
-            - 5555:5555
+            - '3000:3000'
+            - '5555:5555'
         environment:
             DATABASE_URL: postgresql://postgres:postgres@db:5432/app_db
         volumes:
-            - .:/app:cached
-            - ./uploads:/app/uploads
-        command: sh -c "npx prisma generate && npx prisma migrate dev --name init && npm run dev && mkdir uploads"
-
+            - ./uploads:/app/uploads # Монтуємо uploads
+        command: sh -c "mkdir -p uploads && npm run dev"
 volumes:
     pgdata:

@@ -3,10 +3,12 @@ FROM node:23-slim
 WORKDIR /app
 
 # Установим openssl для Prisma
-RUN apt-get update && apt-get install -y openssl
+RUN apt-get update -y && \
+    apt-get install -y openssl
 
 # Копируем package.json и lock
 COPY package*.json ./
+COPY tsconfig.json ./
 
 # Установим все зависимости включая dev
 RUN npm install
@@ -14,5 +16,9 @@ RUN npm install
 # Копируем остальной код
 COPY . .
 
+RUN npx prisma generate
+
+RUN npm run build
+
 # Команда по умолчанию (запускается из docker-compose)
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]

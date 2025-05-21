@@ -22,7 +22,7 @@ export class UserProductService {
         }));
     }
 
-    static async getById(id: string, userId: string) {
+    static async getById(id: string, userId?: string) {
         // Ищем товар по ID
         const product = await prisma.product.findUnique({
             where: { id },
