@@ -15,6 +15,7 @@ const options: swaggerJSDoc.Options = {
         path.resolve(__dirname, '../modules/**/*.controller.ts'), // JSDoc в контроллерах
         path.resolve(__dirname, '../modules/**/*.swagger.yaml'), // yaml в модулях
         path.resolve(__dirname, '../modules/**/**/*.swagger.yaml'), // yaml в модулях
+        path.resolve(__dirname, './modules/**/*.swagger.yaml'),
     ],
 };
 
