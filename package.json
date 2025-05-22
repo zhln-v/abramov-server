@@ -7,6 +7,7 @@
         "build": "npx tsc && cpy \"src/**/*.yaml\" \"src/**/*.yml\" \"src/**/*.json\" \"dist/\" --parents",
         "start": "node dist/index.js",
         "prisma:migrate": "prisma migrate dev --name update",
+        "prisma:deploy": "prisma migrate dev --name update",
         "prisma:generate": "prisma generate",
         "prisma:studio": "prisma studio",
         "prisma:reset": "prisma migrate reset --force",
