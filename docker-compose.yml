@@ -3,27 +3,28 @@ services:
         image: postgres:15
         restart: always
         environment:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: abramov
+            POSTGRES_PASSWORD: __________
             POSTGRES_DB: app_db
-        ports:
-            - '5432:5432'
+        expose:
+            - '5432'
         volumes:
             - pgdata:/var/lib/postgresql/data
+        # cap_drop:
+        #     - ALL
 
     backend:
-        image: zhlnv/abramov-repo
-        env_file:
-            - .env.local
+        image: zhlnv/abramov-repo:latest # Образ с Docker Hub
         depends_on:
             - db
         ports:
             - '3000:3000'
-            - '5555:5555'
         environment:
-            DATABASE_URL: postgresql://postgres:postgres@db:5432/app_db
+            DATABASE_URL: postgresql://abramov:__________@db:5432/app_db
         volumes:
-            - ./uploads:/app/uploads # Монтуємо uploads
-        command: sh -c "mkdir -p uploads && npm run dev"
+            - uploads:/app/uploads
+        restart: unless-stopped
+
 volumes:
     pgdata:
+    uploads:
