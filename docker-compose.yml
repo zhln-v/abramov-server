@@ -14,7 +14,7 @@ services:
         #     - ALL
 
     backend:
-        image: zhlnv/abramov-repo:latest # Образ с Docker Hub
+        image: zhlnv/abramov-repo:latest
         depends_on:
             - db
         ports:

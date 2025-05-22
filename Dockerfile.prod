@@ -19,7 +19,7 @@ COPY . .
 # Генерируем Prisma Client
 RUN npx prisma generate
 
-RUN npx tsc
+RUN npm run build
 
 # Stage 2: Production runtime
 FROM node:23-alpine
@@ -43,4 +43,4 @@ COPY --from=builder /app/dist ./dist
 RUN mkdir -p ./uploads
 
 # Команда по умолчанию (production)
-CMD ["node", "dist/main"]
+CMD ["node", "dist/index"]
