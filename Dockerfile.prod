@@ -7,10 +7,13 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 # Копируем файлы
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY prisma ./prisma
-COPY src ./src
+# COPY package*.json ./
+# COPY tsconfig.json ./
+# COPY prisma ./prisma
+# COPY src ./src
+# COPY .env.local ./.env.local
+
+COPY . .
 
 # Установка зависимостей (включая devDependencies)
 RUN npm ci \
