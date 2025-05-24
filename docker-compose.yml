@@ -4,7 +4,7 @@ services:
         restart: always
         environment:
             POSTGRES_USER: abramov
-            POSTGRES_PASSWORD: asdfg12345Q$
+            POSTGRES_PASSWORD: asdfg12345Q
             POSTGRES_DB: app_db
         expose:
             - '5432'
@@ -19,7 +19,7 @@ services:
             - '3000:3000'
             - '5555:5555'
         environment:
-            DATABASE_URL: postgresql://abramov:asdfg12345Q$@db:5432/app_db
+            DATABASE_URL: postgresql://abramov:asdfg12345Q@db:5432/app_db
         volumes:
             - uploads:/app/uploads
         restart: unless-stopped
