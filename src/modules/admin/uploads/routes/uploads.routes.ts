@@ -30,7 +30,7 @@ uploadsRouter.post('/admin/uploads', upload.single('image'), (req: Request, res:
 
     console.log('uploads 222');
     // 👇 Формируем путь к изображению
-    const fileUrl = `${process.env.SERVER_URL}/uploads/${req.file.filename}`;
+    const fileUrl = `https://abramov-d.duckdns.org/api/uploads/${req.file.filename}`;
     res.status(201).json({ url: fileUrl });
 });
 

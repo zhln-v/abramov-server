@@ -17,6 +17,8 @@ RUN npm install
 # Копируем остальной код
 COPY . .
 
+COPY .env.local ./
+
 # Генерация Prisma Client
 RUN npx prisma generate
 
