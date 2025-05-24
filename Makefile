@@ -18,3 +18,6 @@ generate:
 
 studio:
 	docker compose exec backend npx prisma studio
+
+build:
+    docker buildx build --platform linux/amd64,linux/arm64 -t zhlnv/abramov-repo:latest -f Dockerfile.prod --push .

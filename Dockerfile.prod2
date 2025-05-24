@@ -1,0 +1,32 @@
+# Базовый образ
+FROM node:23-alpine
+
+WORKDIR /app
+
+# Установи необходимые пакеты
+RUN apk add --no-cache openssl
+
+# Копируем файлы
+# COPY package*.json ./
+# COPY tsconfig.json ./
+# COPY prisma ./prisma
+# COPY src ./src
+# COPY .env.local ./.env.local
+
+COPY . .
+
+# Установка зависимостей (включая devDependencies)
+RUN npm ci \
+    npx prisma generate
+
+# Установи ts-node и typescript, если они нужны для dev
+RUN npm install -g ts-node typescript
+
+# Создаем не-root пользователя
+RUN adduser -S appuser && chown -R appuser /app
+USER appuser
+ENV HOME=/home/appuser
+ENV PATH=$HOME/node_modules/.bin:$PATH
+
+# Дефолтная команда
+CMD ["sh", "-c", "npm run dev"]
